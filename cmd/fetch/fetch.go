@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -9,8 +10,8 @@ import (
 
 func main() {
 
-	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run main.go <sub key> <airportIATA> <date>")
+	if len(os.Args) < 3 {
+		fmt.Println("Usage: go run main.go <sub key> <airportIATA> <date> [filename]")
 		return
 	}
 
@@ -30,8 +31,6 @@ func main() {
 		return
 	}
 
-	PrintArrivals(*arrivalsInfo)
-
 	departuresInfo, err := client.GetDepartures(airport, date)
 
 	if err != nil {
@@ -39,7 +38,27 @@ func main() {
 		return
 	}
 
-	PrintDepartures(*departuresInfo)
+	if len(os.Args) == 5 {
+		fname := os.Args[4]
+		file, err := os.Create(fname)
+		if err != nil {
+			fmt.Println("Error creating file:", err)
+			return
+		}
+		defer file.Close()
+
+		encoder := json.NewEncoder(file)
+		err = encoder.Encode(arrivalsInfo)
+		if err != nil {
+			fmt.Println("Error encoding JSON:", err)
+			return
+		}
+		fmt.Println("Arrivals info written to arrivals.json")
+	} else {
+		PrintArrivals(*arrivalsInfo)
+		PrintDepartures(*departuresInfo)
+	}
+
 }
 
 func PrintArrivals(a swedavia.ArrivalsInfo) {
