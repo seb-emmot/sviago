@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sviago App</title>
+  </head>
+  <body>
+    <table>
+        <tr>
+            <th>Airline Operator</th>
+            <th>Scheduled Arrival Time</th>
+            <th>Actual Arrival Time</th>
+            <th>Departure Airport</th>
+        </tr>
+        {{range $index, $element := .Flights }}
+        <tr>
+            <td>{{ $element.AirlineOperator.Name }}</td>
+            <td>{{ $element.ArrivalTime.ScheduledUtc }}</td>
+            <td>{{ $element.ArrivalTime.ActualUtc }}</td>
+            <td>{{ $element.DepartureAirportEnglish }}</td>
+        </tr>
+        {{end}}
+    </table>
+  </body>
+</html>
