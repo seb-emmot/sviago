@@ -14,26 +14,78 @@ type ArrivalsInfo struct {
 }
 
 type ArrivalAirport struct {
-	ArrivalAirportIata string `json:"arrivalAirportIata"`
-	FlightArrivalDate  string `json:"flightArrivalDate"`
+	ArrivalAirportIata    string `json:"arrivalAirportIata"`
+	ArrivalAirportIcao    string `json:"arrivalAirportIcao"`
+	ArrivalAirportSwedish string `json:"arrivalAirportSwedish"`
+	ArrivalAirportEnglish string `json:"arrivalAirportEnglish"`
+	FlightArrivalDate     string `json:"flightArrivalDate"`
 }
 
 type ArrivalFlight struct {
-	FlightId                string      `json:"flightId"`
-	ArrivalTime             ArrivalTime `json:"arrivalTime"`
-	DepartureAirportEnglish string      `json:"departureAirportEnglish"`
-	AirlineOperator         Airline     `json:"airlineOperator"`
-}
-
-type ArrivalTime struct {
-	ScheduledUtc string `json:"scheduledUtc"`
-	ActualUtc    string `json:"actualUtc"`
+	FlightId                string              `json:"flightId"`
+	DepartureAirportSwedish string              `json:"departureAirportSwedish"`
+	DepartureAirportEnglish string              `json:"departureAirportEnglish"`
+	AirlineOperator         Airline             `json:"airlineOperator"`
+	ArrivalTime             ArrivalTime         `json:"arrivalTime"`
+	LocationAndStatus       LocationAndStatus   `json:"locationAndStatus"`
+	Baggage                 Baggage             `json:"baggage"`
+	CodeShareData           []string            `json:"codeShareData"`
+	FlightLegIdentifier     FlightLegIdentifier `json:"flightLegIdentifier"`
+	RemarksEnglish          []Remarks           `json:"remarksEnglish"`
+	RemarksSwedish          []Remarks           `json:"remarksSwedish"`
+	ViaDestinations         []ViaDestination    `json:"viaDestinations"`
 }
 
 type Airline struct {
 	Iata string `json:"iata"`
 	Icao string `json:"icao"`
 	Name string `json:"name"`
+}
+
+type ArrivalTime struct {
+	ScheduledUtc string `json:"scheduledUtc"`
+	EstimatedUtc string `json:"estimatedUtc"`
+	ActualUtc    string `json:"actualUtc"`
+}
+
+type LocationAndStatus struct {
+	Terminal               string `json:"terminal"`
+	Gate                   string `json:"gate"`
+	FlightLegStatus        string `json:"flightLegStatus"`
+	FlightLegStatusSwedish string `json:"flightLegStatusSwedish"`
+	FlightLegStatusEnglish string `json:"flightLegStatusEnglish"`
+}
+
+type Baggage struct {
+	EstimatedFirstBagUtc string `json:"estimatedFirstBagUtc"`
+	BaggageClaimUnit     string `json:"baggageClaimUnit"`
+	FirstBagUtc          string `json:"firstBagUtc"`
+	LastBagUtc           string `json:"lastBagUtc"`
+}
+
+type FlightLegIdentifier struct {
+	IfplId                 string `json:"ifplId"`
+	Callsign               string `json:"callsign"`
+	AircraftRegistration   string `json:"aircraftRegistration"`
+	SsrCode                string `json:"ssrCode"`
+	FlightId               string `json:"flightId"`
+	FlightDepartureDateUtc string `json:"flightDepartureDateUtc"`
+	DepartureAirportIata   string `json:"departureAirportIata"`
+	ArrivalAirportIata     string `json:"arrivalAirportIata"`
+	DepartureAirportIcao   string `json:"departureAirportIcao"`
+	ArrivalAirportIcao     string `json:"arrivalAirportIcao"`
+	DiIndicator            string `json:"diIndicator"`
+}
+
+type Remarks struct {
+	Text      string `json:"text"`
+	Indicator string `json:"indicator"`
+}
+
+type ViaDestination struct {
+	AirportIATA    string `json:"airportIATA"`
+	AirportSwedish string `json:"airportSwedish"`
+	AirportEnglish string `json:"airportEnglish"`
 }
 
 type DeparturesInfo struct {
@@ -79,6 +131,7 @@ func (c *Client) GetArrivals(airport, date string) (*ArrivalsInfo, error) {
 
 	if err != nil {
 		fmt.Println("Error calling:", c.URL, err)
+		return nil, err
 	}
 
 	// parse body into json
@@ -99,6 +152,7 @@ func (c *Client) GetDepartures(airport, date string) (*DeparturesInfo, error) {
 
 	if err != nil {
 		fmt.Println("Error calling:", c.URL, err)
+		return nil, err
 	}
 
 	// parse body into json
