@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Sviago App</title>
+    </head>
+    <body>
+        {{ range $key, $value := . }}
+        <label style="font-size:{{ $value }}px;">{{ $key }}</label>
+        <label style="font-size:{{ $value }}px;">{{ $value }}</label>
+        <br>
+        {{end}}
+    </body>
+</html>
