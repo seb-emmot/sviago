@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sviago App</title>
+  </head>
+  <body>
+    <table>
+        <tr>
+            <th>Iata</th>
+            <th>Dates</th>
+            <th>Link</th>
+        </tr>
+        {{range $index, $element := .Entries }}
+        <tr>
+            <td>{{ $element.Iata }}</td>
+            <td>{{ $element.Date }}</td>
+            <td><a href="{{ $element.Link }}">Link</a></td>
+        </tr>
+        {{end}}
+    </table>
+  </body>
+</html>

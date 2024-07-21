@@ -18,7 +18,8 @@ import (
 
 func main() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/arrivals/{IATA}/", getArrivalDist)
+	mux.HandleFunc("/arrivals/{IATA}/", getArrivalDates)
+	mux.HandleFunc("/arrivals/{IATA}/distributions", getArrivalDist)
 	mux.HandleFunc("/arrivals/{IATA}/{Date}", getArrivals)
 
 	http.ListenAndServe(":8080", mux)
@@ -92,6 +93,75 @@ func getArrivalDist(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		log.Fatal(err)
+		return
+	}
+}
+
+type ArrivalEntries struct {
+	Entries []ArrivalEntry
+}
+
+type ArrivalEntry struct {
+	Iata string
+	Date string
+	Link string
+}
+
+func getArrivalDates(w http.ResponseWriter, r *http.Request) {
+	iata := r.PathValue("IATA")
+
+	log.Println(r.URL.Path)
+
+	if iata == "" {
+		http.Error(w, "IATA must be provided", http.StatusBadRequest)
+		return
+	}
+
+	tmpl, err := template.ParseFiles("static/arrivaldates.html")
+	if err != nil {
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		log.Print(err)
+		return
+	}
+
+	files, err := os.ReadDir("data/")
+	if err != nil {
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		log.Fatal(err)
+		return
+	}
+
+	// get list of files
+
+	arrivalEntries := make([]ArrivalEntry, 0)
+
+	for _, file := range files {
+
+		if file.IsDir() {
+			continue
+		}
+
+		// assuming file is called arrivals_IATA_DATE.json
+		parts := strings.Split(file.Name(), "_")
+
+		iata := parts[1]
+		d := strings.Trim(parts[2], ".json")
+
+		entry := ArrivalEntry{
+			Iata: iata,
+			Date: d,
+			Link: fmt.Sprintf("/arrivals/%s/%s", iata, d)}
+
+		arrivalEntries = append(arrivalEntries, entry)
+
+		fmt.Printf("found file %s\n", file.Name())
+	}
+
+	err = tmpl.Execute(w, ArrivalEntries{Entries: arrivalEntries})
+
+	if err != nil {
+		log.Fatal(err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
 	}
 }

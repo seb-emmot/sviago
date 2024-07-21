@@ -10,6 +10,8 @@
             <th>Scheduled Arrival Time</th>
             <th>Actual Arrival Time</th>
             <th>Departure Airport</th>
+            <th>Callsign</th>
+            <th>AircraftRegistration</th>
         </tr>
         {{range $index, $element := .Flights }}
         <tr>
@@ -17,6 +19,8 @@
             <td>{{ $element.ArrivalTime.ScheduledUtc }}</td>
             <td>{{ $element.ArrivalTime.ActualUtc }}</td>
             <td>{{ $element.DepartureAirportEnglish }}</td>
+            <td>{{ $element.FlightLegIdentifier.Callsign }}</td>
+            <td><a href="https://www.flightradar24.com/data/aircraft/{{ $element.FlightLegIdentifier.AircraftRegistration }}" user-agent="Mozilla/5.0">{{ $element.FlightLegIdentifier.AircraftRegistration }}</a></td>
         </tr>
         {{end}}
     </table>
