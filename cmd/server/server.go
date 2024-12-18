@@ -18,11 +18,30 @@ import (
 
 func main() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/arrivals/{IATA}/", getArrivalDates)
+	mux.HandleFunc("/", getIndex)
+	mux.HandleFunc("/arrivals/{IATA}/", getArrivalAirport)
 	mux.HandleFunc("/arrivals/{IATA}/distributions", getArrivalDist)
-	mux.HandleFunc("/arrivals/{IATA}/{Date}", getArrivals)
+	mux.HandleFunc("/arrivals/{IATA}/{Date}", getArrivalsAirportDate)
 
 	http.ListenAndServe(":8080", mux)
+}
+
+func getIndex(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("static/index.html")
+
+	if err != nil {
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		log.Print(err)
+		return
+	}
+
+	err = tmpl.Execute(w, nil)
+
+	if err != nil {
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		log.Print(err)
+		return
+	}
 }
 
 func getArrivalDist(w http.ResponseWriter, r *http.Request) {
@@ -107,7 +126,7 @@ type ArrivalEntry struct {
 	Link string
 }
 
-func getArrivalDates(w http.ResponseWriter, r *http.Request) {
+func getArrivalAirport(w http.ResponseWriter, r *http.Request) {
 	iata := r.PathValue("IATA")
 
 	log.Println(r.URL.Path)
@@ -117,7 +136,7 @@ func getArrivalDates(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl, err := template.ParseFiles("static/arrivaldates.html")
+	tmpl, err := template.ParseFiles("static/arrivalairport.html")
 	if err != nil {
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		log.Print(err)
@@ -166,7 +185,7 @@ func getArrivalDates(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getArrivals(w http.ResponseWriter, r *http.Request) {
+func getArrivalsAirportDate(w http.ResponseWriter, r *http.Request) {
 	iata := r.PathValue("IATA")
 	date := r.PathValue("Date")
 
@@ -177,7 +196,7 @@ func getArrivals(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl, err := template.ParseFiles("static/index.html")
+	tmpl, err := template.ParseFiles("static/arrivalairportdate.html")
 	if err != nil {
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		log.Print(err)
