@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
+	"path/filepath"
 
 	swedavia "github.com/seb-emmot/sviago/swedavia"
 )
@@ -11,13 +13,19 @@ import (
 func main() {
 
 	if len(os.Args) < 3 {
-		fmt.Println("Usage: go run main.go <sub key> <airportIATA> <date> [filename]")
+		fmt.Println("Usage: go run fetch.go <airportIATA> <date> [outputdir]")
 		return
 	}
 
-	sKey := os.Args[1]
-	airport := os.Args[2]
-	date := os.Args[3]
+	airport := os.Args[1]
+	date := os.Args[2]
+
+	// read environment variable
+	sKey, ok := os.LookupEnv("SWEDAVIA_SUBSCRIPTION_KEY")
+	if !ok {
+		log.Fatal("SWEDAVIA_SUBSCRIPTION_KEY not set")
+		return
+	}
 
 	client := swedavia.Client{
 		URL:             "https://api.swedavia.se",
@@ -38,27 +46,49 @@ func main() {
 		return
 	}
 
-	if len(os.Args) == 5 {
-		fname := os.Args[4]
-		file, err := os.Create(fname)
-		if err != nil {
-			fmt.Println("Error creating file:", err)
-			return
-		}
-		defer file.Close()
+	arrivalFname := fmt.Sprintf("data/arrivals_%s_%s.json", airport, date)
+	departFname := fmt.Sprintf("data/departures_%s_%s.json", airport, date)
 
-		encoder := json.NewEncoder(file)
-		err = encoder.Encode(arrivalsInfo)
-		if err != nil {
-			fmt.Println("Error encoding JSON:", err)
-			return
-		}
-		fmt.Println("Arrivals info written to arrivals.json")
-	} else {
-		PrintArrivals(*arrivalsInfo)
-		PrintDepartures(*departuresInfo)
+	if len(os.Args) == 4 {
+		dir := os.Args[3]
+		arrivalFname = fmt.Sprintf("%s/%s", dir, arrivalFname)
+		departFname = fmt.Sprintf("%s/%s", dir, departFname)
 	}
 
+	adir := filepath.Dir(arrivalFname)
+	os.MkdirAll(adir, os.ModePerm)
+
+	// save arrivals to file
+	file, err := os.Create(arrivalFname)
+	if err != nil {
+		fmt.Println("Error creating file:", err)
+		return
+	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	err = encoder.Encode(arrivalsInfo)
+	if err != nil {
+		fmt.Println("Error encoding JSON:", err)
+		return
+	}
+	fmt.Printf("Arrivals written to %s", arrivalFname)
+
+	// save departures to file
+	file, err = os.Create(departFname)
+	if err != nil {
+		fmt.Println("Error creating file:", err)
+		return
+	}
+	defer file.Close()
+
+	encoder = json.NewEncoder(file)
+	err = encoder.Encode(departuresInfo)
+	if err != nil {
+		fmt.Println("Error encoding JSON:", err)
+		return
+	}
+	fmt.Printf("Departures written to %s", departFname)
 }
 
 func PrintArrivals(a swedavia.ArrivalsInfo) {

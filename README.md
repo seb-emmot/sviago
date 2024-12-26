@@ -10,7 +10,7 @@ https://apideveloper.swedavia.se/
 ## data collector
 The data collector fetches data and saves/prints it.
 To run the data collector.\
-`go run cmd/fetch/fetch.go <sub key> <airportIATA> <date> [filename]`
+`go run cmd/fetch/fetch.go <airportIATA> <date> [outputdir]`
 
 ## server
 To run the server
