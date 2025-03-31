@@ -4,6 +4,17 @@
     <title>Sviago App</title>
   </head>
   <body>
-    <a href="/arrivals/GOT/">GOT</a>
+    <table>
+      <tr>
+        <th>Airport</th>
+      </tr>
+      {{range $index, $element := .IATA }}
+      <tr>
+        <td>
+          <a href="/arrivals/{{ $element }}/">{{ $element }}</a>
+        </td>
+      </tr>
+      {{end}}
+    </table>
   </body>
 </html>

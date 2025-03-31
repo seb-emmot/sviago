@@ -4,8 +4,10 @@
     <title>Sviago App</title>
   </head>
   <body>
+    <a href="/arrivals/{{ .To.ArrivalAirportIata }}">Back</a>
     <table>
         <tr>
+            <th>Flight Id</th>
             <th>Airline Operator</th>
             <th>Scheduled Arrival Time</th>
             <th>Actual Arrival Time</th>
@@ -15,6 +17,7 @@
         </tr>
         {{range $index, $element := .Flights }}
         <tr>
+          <td><a href="https://www.flightradar24.com/data/flights/{{ $element.FlightId }}" target="_blank" rel="noreferrer">{{ $element.FlightId }}</a></td>
             <td>{{ $element.AirlineOperator.Name }}</td>
             <td>{{ $element.ArrivalTime.ScheduledUtc }}</td>
             <td>{{ $element.ArrivalTime.ActualUtc }}</td>
